@@ -1,0 +1,285 @@
+%YAML 1.2
+---
+name: gamY
+author: Martin K. Bonde
+file_extensions: [gms, lst, gmy]
+scope: source.gamY
+
+
+variables:
+  start: (?i)(?<!\w)
+
+
+contexts:
+  main:
+    - include: set_statement
+    - include: table
+    - include: block
+    - include: group
+    - include: model
+    - include: function_statement
+    - include: sum
+    - include: general
+
+  general:
+    - include: linecomment
+    - include: if
+    - include: for
+    - include: loop
+    - include: regex
+    - include: replace
+    - include: function_call
+    - include: environmental_variable
+    - include: sum
+    - include: keyword
+    - include: suffix
+    - include: sets
+    - include: math
+    - include: operator
+    - include: number
+    - include: string
+    - include: symbol
+    - include: conditional
+
+  end:
+    - match: ;
+      scope: punctuation.definition.tag.end
+      pop: true
+
+  set_statement:
+    - match: '{{start}}((?:SINGLETON )?SETS?)\s+'
+      scope: punctuation.definition.tag.begin
+      push:
+        - include: end
+        - include: set_definition
+
+  set_definition:
+    - match: (\w+)(\s+\".+\")?
+      captures:
+        1: entity.name
+        2: punctuation.definition.comment
+
+  function_statement:
+    - match: '{{start}}(\$FUNCTION)\s+(\w+)'
+      captures:
+        1: punctuation.definition.tag.begin
+        2: entity.name
+      push:
+        - match: '{{start}}(\$ENDFUNCTION)'
+          scope: punctuation.definition.tag.end
+          pop: true
+        - match: '\:'
+          scope: punctuation.definition.tag.begin
+        - include: arguments
+        - include: main
+
+  function_call:
+    - match: '@\w+'
+      scope: entity.name
+      push:     
+      - include: arguments
+      - match: ""
+        pop: true
+
+  arguments:
+    - match: \(
+      scope: entity.name
+      push:
+        - match: \)
+          scope: entity.name
+          pop: true
+        - include: general
+
+  block:
+    - match: '{{start}}(\$BLOCK)\s+(\w+)'
+      captures:
+        1: punctuation.definition.tag.begin
+        2: storage
+      push:
+        - match: '{{start}}(\$ENDBLOCK)\b'
+          scope: punctuation.definition.tag.end
+          pop: true
+        - include: equation
+        - include: general
+
+  equation:
+    - match: ^\s+(\w+)
+      scope: storage
+      push:
+        - match: ;
+          pop: true
+        - include: equation_separator
+        - include: general
+
+  equation_separator:
+    - match: (?i)(=e=|=l=|=g=|=x=)
+
+  model:
+    - match: '{{start}}(\$MODEL)\s+(\w+)'
+      captures:
+        1: punctuation.definition.tag.begin
+        2: storage   
+      push:
+        - include: general
+        - include: end
+
+  group:
+    - match: '{{start}}(\$P?GROUP)\s+(\w+)'
+      captures:
+        1: punctuation.definition.tag.begin
+        2: storage   
+      push:
+        - match: \".+\"
+          scope: punctuation.definition.comment
+        - match: '(?<=\])\$[^\(]\S+'
+          scope: invalid.illegal
+        - include: general
+        - include: end
+
+  sets:
+    - match: \[.+?\]
+      # scope: variable.language
+      # push:
+      #   - match: ([\w\'\"+-]+)
+      #     # scope: variable.parameter
+      #   - match: \]
+      #     pop: true
+
+  for:
+    - match: '(?i)(\$FOR) ([^\:]+)(\:)'
+      captures:
+        1: punctuation.definition.tag.begin
+        3: punctuation.definition.tag.begin
+      push:
+        - match: (?i)\$ENDFOR
+          scope: punctuation.definition.tag.end
+          pop: true
+        - include: main
+
+  if:
+    - match: '(?i)(\$IF)'
+      captures:
+        1: punctuation.definition.tag.begin
+      push:
+        - match: '\:'
+          scope: punctuation.definition.tag
+        - match: (?i)\$ENDIF
+          scope: punctuation.definition.tag.end
+          pop: true
+        - include: main
+
+  regex:
+    - match: '(?i)(\$REGEX) ([^\:]+)(\:)'
+      captures:
+        1: punctuation.definition.tag.begin
+        3: punctuation.definition.tag.begin
+      push:
+        - match: (?i)\$ENDREGEX
+          scope: punctuation.definition.tag.end
+          pop: true
+        - include: main
+  replace:
+    - match: '(?i)(\$replace) ([^\:]+)(\:)'
+      captures:
+        1: punctuation.definition.tag.begin
+        3: punctuation.definition.tag.begin
+      push:
+        - match: (?i)\$ENDreplace
+          scope: punctuation.definition.tag.end
+          pop: true
+        - include: main
+
+  loop:
+    - match: '(?i)(\$LOOP) ([^\:]+)(\:)'
+      captures:
+        1: punctuation.definition.tag.begin
+        3: punctuation.definition.tag.begin
+      push:
+        - match: (?i)\$ENDLOOP
+          scope: punctuation.definition.tag.end
+          pop: true
+        - match: '{name|sets|subsets|RHS|LHS}'
+          scope: entity.name
+        - match: '({\$}\[)(.+?)(\])'
+          captures:
+            1: punctuation.definition.tag.begin
+            3: punctuation.definition.tag.begin
+        - include: main
+
+  conditional:
+    - match: '\$'
+      push:
+        - meta_scope: keyword.control.conditional
+        - include: brackets
+          pop: true
+        - match: '[\w,\[\]]+'
+          pop: true
+        - match: ""
+          pop: true
+
+  brackets:
+    - match: \(
+      push:
+        - include: brackets
+        - match: \)
+          pop: true
+
+  sum:
+    - match: '{{start}}(SUM)\('
+      captures:
+        1: keyword.operator
+      push: 
+        - include: brackets
+        - match: ','
+          pop: true
+
+  linecomment:
+    - match: \#.*
+      scope: comment.line
+
+  math:
+    - match: (?i)\b(ABS|ARCCOS|ARCSIN|ARCTAN|ARCTAN2|BETA|BETAREG|BINOMIAL|BOOL_(AND|EQV|IMP|NOT|OR|XOR)|CEIL|CENTROPY|COS|COSH|CVPOWER|DIV|DIV0|EDIST|ENTROPY|ERRORF|EXECSEED|EXP|FACT|FLOOR|FRAC|GAMMA|GAMMAREG|IFTHEN|LOG|LOG2|LOG10|LOGBETA|LOGGAMMA|MAPVAL|MAX|MIN|MOD|NCP(CM|F|VUPOW|VUSIN)|NORMAL|PI|POLY|POWER|RANDBINOMIAL|RANDLINEAR|RANDTRIANGLE|ROUND|RPOWER|SIGMOID|SIGN|SIGNPOWER|SIN|SINH|SL(EXP|LOG10|REC)|SQ(EXP|LOG10|R|REC|RT)|TANH?|TRUNC|UNIFORM|UNIFORMINT|VCPOWER)\b
+      scope: keyword.operator
+
+  number:
+    - match: (?<![\d.])\b\d+(\.\d+)?([eE]-?\d+)?|\.\d+([eE]-?\d+)?
+      scope: constant.numeric
+
+  operator:
+    - match: (\b(and|or|not)\b)|(\+|-|%|#|\*|\/|\*\*|=|<=?|>=?)
+      # scope: keyword.operator.gams
+
+  suffix:
+    - match: (?i)\.(L|LO|UP|FX|VAL|SCALE|PRIOR|PC|PS|PW|TM|BM|CASE|DATE|IFILE|OFILE|PAGE|RDATE|RFILE|RTIME|SFILE|TIME|TITLE|TS|TL|TE|TF|LJ|NJ|SJ|TJ|LW|NW|SW|TW|ND|NR|NZ|CC|HDCC|TLCC|LL|HDLL|TLLL|LP|WS)\b
+      scope: punctuation.definition.tag
+
+  symbol:
+    - match: '[\w\{\}]+'
+      scope: entity.name
+
+  string:
+    - match: \"[^\"]*\"
+      scope: string.quoted.double
+    - match: \'[^\']*\'
+      scope: string.quoted.single
+
+  environmental_variable:
+    - match: \%\w+\%
+      scope: entity.name
+
+  table:
+    - match: '{{start}}(TABLES?)\s+'
+      scope: meta.function.gms
+      captures:
+        1: keyword.control
+      push:
+        - include: end
+        - include: general
+
+  keyword:
+    - match: '{{start}}\$(ABORT|BATINCLUDE|CALL|CLEAR|CLEARERRORS?|COMMENT|COMPRESS|DECOMPRESS|DEFINTION|DOLLAR|DOUBLE|DROP|DROP(ENV|GLOBAL|LOCAL)|ECHON?|EJECT|ELSE|ELSE(IF|IFE|IFI)|ENCRYPT|ENDIF|EOLCOM|ERROR|ESCAPE|EVAL|EVAL(GLOBAL|LOCAL)|EXIT|EXPOSE|FUNCLIBIN|GOTO|GDX(IN|OUT)|HIDDEN|HIDDENCALL|HIDE|IF|IF(E|I|THEN|THENE|THENI)|INCLUDE|INLINECOM|KILL|LABEL|LIBINCLUDE|LINES|LOAD|LOAD(DC|DCM|DCR|M|R)|LOG|MACRO|(MIN|MAX)COL|MAXGOTO|(ON|OFF)DELIM|(ON|OFF)DIGIT|(ON|OFF)DOLLAR|(ON|OFF)DOTL|(ON|OFF)ECHO|(ON|OFF)EMBEDDED|(ON|OFF)EMPTY|(ON|OFF)END|(ON|OFF)EOLCOM|(ON|OFF)EPS|(ON|OFF)EXPAND|(ON|OFF)GLOBAL|(ON|OFF)INCLUDE|(ON|OFF)INLINE|(ON|OFF)LISTING|(ON|OFF)LOCAL|(ON|OFF)LOG|(ON|OFF)MACRO|(ON|OFF)MARGIN|(ON|OFF)MULTI|(ON|OFF)NESTCOM|(ON|OFF)PUT|(ON|OFF)RECURSE|(ON|OFF)SYMLIST|(ON|OFF)SYMXREF|(ON|OFF)UELLIST|(ON|OFF)UELXREF|(ON|OFF)UNDF|(ON|OFF)VERBATIM|(ON|OFF)WARNING|(ON|OFF)UPPER|PHANTOM|PREFIXPATH|PROTECT|PURGE|REMARK|SET|SET(ARGS|COMPS|DDLIST|ENV|GLOBAL|LOCAL|NAMES)|SHIFT|SHOW|SINGLE|STARS|STITLE|STOP|SYSINCLUDE|TERMINATE|TITLE|UNLOAD|USE205|USE225|USE999|VERSION|WARNING)\b'
+      scope: keyword.control
+    - match: '{{start}}(ABORT|ACRONYMS?|ALIAS|ALL|ASSIGN|BINARY|CARD|DISPLAY|EPS|EQ|GE|GT|INF|INTEGER|LE|LOOP|LT|MAXIMIZING|MINIMIZING|MODELS?|NA|NE|NEGATIVE|OPTION|OPTIONS|ORD|PROD|SMAX|SMIN|SOS1|SOS2|SUM|SYSTEM|TABLE|USING|XOR|YES|REPEAT|UNTIL|WHILE|IF|THEN|ELSE|SEMICONT|SEMIINT|FILES?|PUT|PUTPAGE|PUTTL|PUTCLOSE|FREE|NO|SOLVE|FOR|ELSEIF)\b'
+      scope: keyword.other
+    - match: (?i)\$(IMPORT|SAVE|DISPLAY|FIX|UNFIX|OUTPUT)\b
+      scope: keyword.control

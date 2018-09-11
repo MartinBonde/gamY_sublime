@@ -1,0 +1,10 @@
+[
+  {
+    "caption": "Gams: Switch between code and listing",
+    "command": "gamy_listing_switch"
+  },
+  {
+    "caption": "Gams: Switch to expanded version of gamY file",
+    "command": "gamy_expand_switch"
+  }
+]
