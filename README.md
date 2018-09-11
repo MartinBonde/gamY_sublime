@@ -3,7 +3,8 @@ Package to use Sublime Text together with gamY, a macro language built on top of
 
 ## Features
 - Syntax highlighting
-- Quick switching between gamY files (.gms), listing files (.lst), and expanded GAMS files (.gmy)æ.
+- Customized color schemes
+- Quick switching between gamY files (.gms), listing files (.lst), and expanded GAMS files (.gmy).
 	<ctr + shift + G> switches between .gms and .lst counterparts
 	<ctr + shift + E> switches between .gms file and its expanded counterpart.
 
