@@ -47,11 +47,14 @@ contexts:
       pop: true
 
   set_statement:
-    - match: '{{start}}((?:SINGLETON )?SETS?)\s+'
-      scope: punctuation.definition.tag.begin
+    - match: '{{start}}((?:SINGLETON )?SETS?)\s+(\".+\")?'
+      captures:
+        1: punctuation.definition.tag.begin
+        2: punctuation.definition.comment
       push:
         - include: end
         - include: set_definition
+        - include: main
 
   set_definition:
     - match: (\w+)(\s+\".+\")?
