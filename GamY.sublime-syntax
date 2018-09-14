@@ -47,14 +47,11 @@ contexts:
       pop: true
 
   set_statement:
-    - match: '{{start}}((?:SINGLETON )?SETS?)\s+(\".+\")?'
-      captures:
-        1: punctuation.definition.tag.begin
-        2: punctuation.definition.comment
+    - match: '{{start}}((?:SINGLETON )?SETS?)\s+'
+      scope: punctuation.definition.tag.begin
       push:
         - include: end
         - include: set_definition
-        - include: main
 
   set_definition:
     - match: (\w+)(\s+\".+\")?
@@ -149,24 +146,24 @@ contexts:
       #     pop: true
 
   for:
-    - match: '(?i)(\$FOR) ([^\:]+)(\:)'
+    - match: '(?i)(\$FOR\d*) ([^\:]+)(\:)'
       captures:
         1: punctuation.definition.tag.begin
         3: punctuation.definition.tag.begin
       push:
-        - match: (?i)\$ENDFOR
+        - match: (?i)\$ENDFOR\d*
           scope: punctuation.definition.tag.end
           pop: true
         - include: main
 
   if:
-    - match: '(?i)(\$IF)'
+    - match: '(?i)(\$IF\d*)'
       captures:
         1: punctuation.definition.tag.begin
       push:
         - match: '\:'
           scope: punctuation.definition.tag
-        - match: (?i)\$ENDIF
+        - match: (?i)\$ENDIF\d*
           scope: punctuation.definition.tag.end
           pop: true
         - include: main
@@ -182,7 +179,7 @@ contexts:
           pop: true
         - include: main
   replace:
-    - match: '(?i)(\$replace) ([^\:]+)(\:)'
+    - match: '(?i)(\$REPLACE) ([^\:]+)(\:)'
       captures:
         1: punctuation.definition.tag.begin
         3: punctuation.definition.tag.begin
@@ -193,12 +190,12 @@ contexts:
         - include: main
 
   loop:
-    - match: '(?i)(\$LOOP) ([^\:]+)(\:)'
+    - match: '(?i)(\$LOOP\d*) ([^\:]+)(\:)'
       captures:
         1: punctuation.definition.tag.begin
         3: punctuation.definition.tag.begin
       push:
-        - match: (?i)\$ENDLOOP
+        - match: (?i)\$ENDLOOP\d*
           scope: punctuation.definition.tag.end
           pop: true
         - match: '{name|sets|subsets|RHS|LHS}'
