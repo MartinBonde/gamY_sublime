@@ -1,5 +1,5 @@
 [
 	{ "keys": ["ctrl+shift+g"], "command": "gamy_listing_switch"},
-	{ "keys": ["ctrl+shift+e"], "command": "gamy_expand_switch"}
+	{ "keys": ["ctrl+shift+alt+g"], "command": "gamy_expand_switch"}
 ]
 
