@@ -1,5 +1,9 @@
 [
-	{ "keys": ["ctrl+shift+g"], "command": "gamy_listing_switch"},
-	{ "keys": ["ctrl+shift+alt+g"], "command": "gamy_expand_switch"}
+	{"keys": ["ctrl+shift+g"],
+   "command": "gamy_listing_switch",
+   "context":[{ "key": "selector", "operator": "equal", "operand": "source.gamY" }]},
+	{"keys": ["ctrl+shift+alt+g"],
+   "command": "gamy_expand_switch",
+   "context":[{ "key": "selector", "operator": "equal", "operand": "source.gamY" }]},
 ]
 

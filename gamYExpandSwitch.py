@@ -19,7 +19,6 @@ class GamyExpandSwitchCommand(sublime_plugin.TextCommand):
             if not os.path.exists(target_file):
                 target_file = os.path.join(source_dir, "Expanded")
                 target_file = os.path.join(target_file, file_name+".gmy")
-                print(target_file)
 
         if file_extension == ".gmy":
             target_file = os.path.join(source_dir, file_name+".gms")
@@ -30,7 +29,6 @@ class GamyExpandSwitchCommand(sublime_plugin.TextCommand):
             target_file = os.path.join(source_dir, file_name+".gmy")
             if not os.path.exists(target_file):
                 target_file = os.path.join(source_dir, "..", "Expanded", file_name+".gmy")
-
 
         if target_file and os.path.exists(target_file):
             self.view.window().open_file(target_file)
