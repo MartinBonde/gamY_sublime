@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>name</key>
-	<string>GamY Comments</string>
+	<string>GamY</string>
 	<key>scope</key>
 	<string>source.gamY</string>
 	<key>settings</key>
