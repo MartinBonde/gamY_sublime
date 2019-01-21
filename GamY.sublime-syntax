@@ -39,7 +39,7 @@ contexts:
     - include: number
     - include: string
     - include: symbol
-    - include: conditional
+    - include: dollar_condition
 
   end:
     - match: ;
@@ -63,7 +63,7 @@ contexts:
     - match: '{{start}}(\$FUNCTION)\s+(\w+)'
       captures:
         1: punctuation.definition.tag.begin
-        2: entity.name
+        2: entity.name.function
       push:
         - match: '{{start}}(\$ENDFUNCTION)'
           scope: punctuation.definition.tag.end
@@ -76,7 +76,7 @@ contexts:
   function_call:
     - match: '@\w+'
       scope: entity.name
-      push:     
+      push:
       - include: arguments
       - match: ""
         pop: true
@@ -96,6 +96,7 @@ contexts:
         1: punctuation.definition.tag.begin
         2: storage
       push:
+        - meta_scope: meta.block
         - match: '{{start}}(\$ENDBLOCK)\b'
           scope: punctuation.definition.tag.end
           pop: true
@@ -108,6 +109,7 @@ contexts:
         1: storage
         3: keyword.control.conditional
       push:
+        - meta_scope: meta.equation
         - match: ;
           pop: true
         - include: equation_separator
@@ -120,23 +122,53 @@ contexts:
     - match: '{{start}}(\$MODEL)\s+(\w+)'
       captures:
         1: punctuation.definition.tag.begin
-        2: storage   
+        2: storage
       push:
         - include: general
         - include: end
 
   group:
-    - match: '{{start}}(\$P?GROUP)\s+(\w+)'
+    - match: '{{start}}(\$P?GROUP)\s+(\w+)\s+'
       captures:
         1: punctuation.definition.tag.begin
-        2: storage   
+        2: storage
       push:
-        - match: \".+\"
-          scope: punctuation.definition.comment
-        - match: '(?<=\])\$[^\(]\S+'
-          scope: invalid.illegal
-        - include: general
+        - meta_scope: meta.group.gamY
         - include: end
+        - include: variable_definition # Includes docstring
+        - include: group_variable
+        - include: general
+
+  group_variable:
+    - match: '(?<=\])\$[^\(]\S+'
+      scope: invalid.illegal
+    - match: (\w+)(?=.*?\".*?\")
+      captures:
+        1: entity.name.type
+      push:
+        - meta_scope: meta.variable.definition.gamY
+        - include: sets
+        - include: dollar_condition
+        - include: docstring
+        - include: separator
+    - match: (\-)?(\w+)
+      captures:
+        2: entity.name
+      push:
+        - include: sets
+        - include: dollar_condition
+        - include: docstring
+        - include: separator
+
+  separator:
+    - match: \s*?(\,|\n)\s*
+      pop: true
+    - match: (?=;)
+      pop: true
+
+  docstring:
+    - match: \s+\"(.*?)\"
+      scope: punctuation.definition.comment
 
   sets:
     - match: \[.+?\]
@@ -208,7 +240,7 @@ contexts:
             3: punctuation.definition.tag.begin
         - include: main
 
-  conditional:
+  dollar_condition:
     - match: '\$'
       push:
         - meta_scope: keyword.control.conditional
@@ -230,7 +262,7 @@ contexts:
     - match: '{{start}}(SUM)\('
       captures:
         1: keyword.operator
-      push: 
+      push:
         - include: brackets
         - match: ','
           pop: true
