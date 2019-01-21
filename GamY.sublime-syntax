@@ -109,11 +109,15 @@ contexts:
         1: storage
         3: keyword.control.conditional
       push:
-        - meta_scope: meta.equation
-        - match: ;
-          pop: true
+        - include: end
         - include: equation_separator
         - include: general
+        - include: equation_error
+
+  equation_error:
+    - match: ( = ).+\;
+      captures:
+        1: invalid.illegal
 
   equation_separator:
     - match: (?i)(=e=|=l=|=g=|=x=)
@@ -281,7 +285,7 @@ contexts:
 
   operator:
     - match: (\b(and|or|not)\b)|(\+|-|%|#|\*|\/|\*\*|=|<=?|>=?)
-      # scope: keyword.operator.gams
+      scope: keyword.operator.gams
 
   suffix:
     - match: (?i)\.(L|LO|UP|FX|VAL|SCALE|PRIOR|PC|PS|PW|TM|BM|CASE|DATE|IFILE|OFILE|PAGE|RDATE|RFILE|RTIME|SFILE|TIME|TITLE|TS|TL|TE|TF|LJ|NJ|SJ|TJ|LW|NW|SW|TW|ND|NR|NZ|CC|HDCC|TLCC|LL|HDLL|TLLL|LP|WS)\b

@@ -195,8 +195,8 @@ a {
 			<string>keyword.operator</string>
 			<key>settings</key>
 			<dict>
-				<key>foreground</key>
-				<string>#F29E74</string>
+<!-- 				<key>foreground</key>
+				<string>#F29E74</string> -->
 			</dict>
 		</dict>
 		<dict>
