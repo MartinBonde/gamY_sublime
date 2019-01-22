@@ -3,7 +3,7 @@
 name: gamY
 author: Martin K. Bonde
 file_extensions: [gms, lst, gmy]
-scope: source
+scope: source.gamY
 
 
 variables:
@@ -22,8 +22,8 @@ contexts:
     - include: general
 
   general:
-    - include: brackets1
     - include: linecomment
+    - include: brackets1
     - include: if
     - include: for
     - include: loop
@@ -156,6 +156,7 @@ contexts:
         - include: dollar_condition
         - include: docstring
         - include: separator
+        - include: general
     - match: (\-)?(\w+)
       captures:
         2: entity.name.gamY
@@ -164,6 +165,7 @@ contexts:
         - include: dollar_condition
         - include: docstring
         - include: separator
+        - include: general
 
   separator:
     - match: \s*?(\,|\n)\s*
