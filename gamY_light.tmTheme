@@ -1053,6 +1053,44 @@ a {
 				<string>#F51818</string>
 			</dict>
 		</dict>
+
+
+    <dict>
+      <key>name</key>
+      <string>brackets2</string>
+      <key>scope</key>
+      <string>punctuation.brackets.2</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key>
+        <string>#ec5f67</string>
+      </dict>
+    </dict>
+
+    <dict>
+      <key>name</key>
+      <string>brackets3</string>
+      <key>scope</key>
+      <string>punctuation.brackets.3</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key>
+        <string>#86b300</string>
+      </dict>
+    </dict>
+
+    <dict>
+      <key>name</key>
+      <string>brackets4</string>
+      <key>scope</key>
+      <string>punctuation.brackets.4</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key>
+        <string>#3385ff</string>
+      </dict>
+    </dict>
+
 	</array>
 	<key>uuid</key>
 	<string>0e709986-46a0-40a0-b3bf-c8dfe525c455</string>

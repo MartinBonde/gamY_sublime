@@ -3,7 +3,7 @@
 name: gamY
 author: Martin K. Bonde
 file_extensions: [gms, lst, gmy]
-scope: source.gamY
+scope: source
 
 
 variables:
@@ -22,6 +22,7 @@ contexts:
     - include: general
 
   general:
+    - include: brackets1
     - include: linecomment
     - include: if
     - include: for
@@ -43,12 +44,12 @@ contexts:
 
   end:
     - match: ;
-      scope: punctuation.definition.tag.end
+      scope: punctuation.definition.tag.end.gamY
       pop: true
 
   set_statement:
     - match: '{{start}}((?:SINGLETON )?SETS?)\s+'
-      scope: punctuation.definition.tag.begin
+      scope: punctuation.definition.tag.begin.gamY
       push:
         - include: end
         - include: set_definition
@@ -56,26 +57,26 @@ contexts:
   set_definition:
     - match: (\w+)(\[[\w,]+\])?(\s+\".+\")?
       captures:
-        1: entity.name
-        3: punctuation.definition.comment
+        1: entity.name.gamY
+        3: punctuation.definition.comment.gamY
 
   function_statement:
     - match: '{{start}}(\$FUNCTION)\s+(\w+)'
       captures:
-        1: punctuation.definition.tag.begin
-        2: entity.name.function
+        1: punctuation.definition.tag.begin.gamY
+        2: entity.name.function.gamY
       push:
         - match: '{{start}}(\$ENDFUNCTION)'
-          scope: punctuation.definition.tag.end
+          scope: punctuation.definition.tag.end.gamY
           pop: true
         - match: '\:'
-          scope: punctuation.definition.tag.begin
+          scope: punctuation.definition.tag.begin.gamY
         - include: arguments
         - include: main
 
   function_call:
     - match: '@\w+'
-      scope: entity.name
+      scope: entity.name.gamY
       push:
       - include: arguments
       - match: ""
@@ -83,22 +84,22 @@ contexts:
 
   arguments:
     - match: \(
-      scope: entity.name
+      scope: entity.name.gamY
       push:
         - match: \)
-          scope: entity.name
+          scope: entity.name.gamY
           pop: true
         - include: general
 
   block:
     - match: '{{start}}(\$BLOCK)\s+(\w+)'
       captures:
-        1: punctuation.definition.tag.begin
+        1: punctuation.definition.tag.begin.gamY
         2: storage
       push:
-        - meta_scope: meta.block
+        - meta_scope: meta.block.gamY
         - match: '{{start}}(\$ENDBLOCK)\b'
-          scope: punctuation.definition.tag.end
+          scope: punctuation.definition.tag.end.gamY
           pop: true
         - include: equation
         - include: general
@@ -107,7 +108,7 @@ contexts:
     - match: ^\s+(\w+)(\[.+?\])?(\$.+?)?\.\.
       captures:
         1: storage
-        3: keyword.control.conditional
+        3: keyword.control.conditional.gamY
       push:
         - include: end
         - include: equation_separator
@@ -117,7 +118,7 @@ contexts:
   equation_error:
     - match: ( = ).+\;
       captures:
-        1: invalid.illegal
+        1: invalid.illegal.gamY
 
   equation_separator:
     - match: (?i)(=e=|=l=|=g=|=x=)
@@ -125,7 +126,7 @@ contexts:
   model:
     - match: '{{start}}(\$MODEL)\s+(\w+)'
       captures:
-        1: punctuation.definition.tag.begin
+        1: punctuation.definition.tag.begin.gamY
         2: storage
       push:
         - include: general
@@ -134,7 +135,7 @@ contexts:
   group:
     - match: '{{start}}(\$P?GROUP)\s+(\w+)\s+'
       captures:
-        1: punctuation.definition.tag.begin
+        1: punctuation.definition.tag.begin.gamY
         2: storage
       push:
         - meta_scope: meta.group.gamY
@@ -145,10 +146,10 @@ contexts:
 
   group_variable:
     - match: '(?<=\])\$[^\(]\S+'
-      scope: invalid.illegal
+      scope: invalid.illegal.gamY
     - match: (\w+)(?=.*?\".*?\")
       captures:
-        1: entity.name.type
+        1: entity.name.type.gamY
       push:
         - meta_scope: meta.variable.definition.gamY
         - include: sets
@@ -157,7 +158,7 @@ contexts:
         - include: separator
     - match: (\-)?(\w+)
       captures:
-        2: entity.name
+        2: entity.name.gamY
       push:
         - include: sets
         - include: dollar_condition
@@ -172,82 +173,82 @@ contexts:
 
   docstring:
     - match: \s+\"(.*?)\"
-      scope: punctuation.definition.comment
+      scope: punctuation.definition.comment.gamY
 
   sets:
     - match: \[.+?\]
-      # scope: variable.language
+      # scope: variable.language.gamY
       # push:
       #   - match: ([\w\'\"+-]+)
-      #     # scope: variable.parameter
+      #     # scope: variable.parameter.gamY
       #   - match: \]
       #     pop: true
 
   for:
     - match: '(?i)(\$FOR\d*) ([^\:]+)(\:)'
       captures:
-        1: punctuation.definition.tag.begin
-        3: punctuation.definition.tag.begin
+        1: punctuation.definition.tag.begin.gamY
+        3: punctuation.definition.tag.begin.gamY
       push:
         - match: (?i)\$ENDFOR\d*
-          scope: punctuation.definition.tag.end
+          scope: punctuation.definition.tag.end.gamY
           pop: true
         - include: main
 
   if:
     - match: '(?i)(\$IF\d*)'
       captures:
-        1: punctuation.definition.tag.begin
+        1: punctuation.definition.tag.begin.gamY
       push:
         - match: '\:'
-          scope: punctuation.definition.tag
+          scope: punctuation.definition.tag.gamY
         - match: (?i)\$ENDIF\d*
-          scope: punctuation.definition.tag.end
+          scope: punctuation.definition.tag.end.gamY
           pop: true
         - include: main
 
   regex:
     - match: '(?i)(\$REGEX) ([^\:]+)(\:)'
       captures:
-        1: punctuation.definition.tag.begin
-        3: punctuation.definition.tag.begin
+        1: punctuation.definition.tag.begin.gamY
+        3: punctuation.definition.tag.begin.gamY
       push:
         - match: (?i)\$ENDREGEX
-          scope: punctuation.definition.tag.end
+          scope: punctuation.definition.tag.end.gamY
           pop: true
         - include: main
   replace:
     - match: '(?i)(\$REPLACE) ([^\:]+)(\:)'
       captures:
-        1: punctuation.definition.tag.begin
-        3: punctuation.definition.tag.begin
+        1: punctuation.definition.tag.begin.gamY
+        3: punctuation.definition.tag.begin.gamY
       push:
         - match: (?i)\$ENDreplace
-          scope: punctuation.definition.tag.end
+          scope: punctuation.definition.tag.end.gamY
           pop: true
         - include: main
 
   loop:
     - match: '(?i)(\$LOOP\d*) ([^\:]+)(\:)'
       captures:
-        1: punctuation.definition.tag.begin
-        3: punctuation.definition.tag.begin
+        1: punctuation.definition.tag.begin.gamY
+        3: punctuation.definition.tag.begin.gamY
       push:
         - match: (?i)\$ENDLOOP\d*
-          scope: punctuation.definition.tag.end
+          scope: punctuation.definition.tag.end.gamY
           pop: true
         - match: '{name|sets|subsets|RHS|LHS}'
-          scope: entity.name
+          scope: entity.name.gamY
         - match: '({\$}\[)(.+?)(\])'
           captures:
-            1: punctuation.definition.tag.begin
-            3: punctuation.definition.tag.begin
+            1: punctuation.definition.tag.begin.gamY
+            3: punctuation.definition.tag.begin.gamY
         - include: main
 
   dollar_condition:
     - match: '\$'
       push:
-        - meta_scope: keyword.control.conditional
+        - meta_scope: keyword.control.conditional.gamY
         - include: brackets
           pop: true
         - match: '[\w,\[\]]+'
@@ -265,7 +266,7 @@ contexts:
   sum:
     - match: '{{start}}(SUM)\('
       captures:
-        1: keyword.operator
+        1: keyword.operator.gamY
       push:
         - include: brackets
         - match: ','
@@ -273,51 +274,91 @@ contexts:
 
   linecomment:
     - match: \#.*
-      scope: comment.line
+      scope: comment.line.gamY
 
   math:
     - match: (?i)\b(ABS|ARCCOS|ARCSIN|ARCTAN|ARCTAN2|BETA|BETAREG|BINOMIAL|BOOL_(AND|EQV|IMP|NOT|OR|XOR)|CEIL|CENTROPY|COS|COSH|CVPOWER|DIV|DIV0|EDIST|ENTROPY|ERRORF|EXECSEED|EXP|FACT|FLOOR|FRAC|GAMMA|GAMMAREG|IFTHEN|LOG|LOG2|LOG10|LOGBETA|LOGGAMMA|MAPVAL|MAX|MIN|MOD|NCP(CM|F|VUPOW|VUSIN)|NORMAL|PI|POLY|POWER|RANDBINOMIAL|RANDLINEAR|RANDTRIANGLE|ROUND|RPOWER|SIGMOID|SIGN|SIGNPOWER|SIN|SINH|SL(EXP|LOG10|REC)|SQ(EXP|LOG10|R|REC|RT)|TANH?|TRUNC|UNIFORM|UNIFORMINT|VCPOWER)\b
-      scope: keyword.operator
+      scope: keyword.operator.gamY
 
   number:
     - match: (?<![\d.])\b\d+(\.\d+)?([eE]-?\d+)?|\.\d+([eE]-?\d+)?
-      scope: constant.numeric
+      scope: constant.numeric.gamY
 
   operator:
     - match: (\b(and|or|not)\b)|(\+|-|%|#|\*|\/|\*\*|=|<=?|>=?)
-      scope: keyword.operator.gams
+      scope: keyword.operator.gamY
 
   suffix:
     - match: (?i)\.(L|LO|UP|FX|VAL|SCALE|PRIOR|PC|PS|PW|TM|BM|CASE|DATE|IFILE|OFILE|PAGE|RDATE|RFILE|RTIME|SFILE|TIME|TITLE|TS|TL|TE|TF|LJ|NJ|SJ|TJ|LW|NW|SW|TW|ND|NR|NZ|CC|HDCC|TLCC|LL|HDLL|TLLL|LP|WS)\b
-      scope: punctuation.definition.tag
+      scope: punctuation.definition.tag.gamY
 
   symbol:
     - match: '[\w\{\}]+'
-      scope: entity.name
+      scope: entity.name.gamY
 
   string:
     - match: \"[^\"]*\"
-      scope: string.quoted.double
+      scope: string.quoted.double.gamY
     - match: \'[^\']*\'
-      scope: string.quoted.single
+      scope: string.quoted.single.gamY
 
   environmental_variable:
     - match: \%\w+\%
-      scope: entity.name
+      scope: entity.name.gamY
 
   table:
     - match: '{{start}}(TABLES?)\s+'
-      scope: meta.function.gms
+      scope: meta.function.gamY
       captures:
-        1: keyword.control
+        1: keyword.control.gamY
       push:
         - include: end
         - include: general
 
   keyword:
     - match: '{{start}}\$(ABORT|BATINCLUDE|CALL|CLEAR|CLEARERRORS?|COMMENT|COMPRESS|DECOMPRESS|DEFINTION|DOLLAR|DOUBLE|DROP|DROP(ENV|GLOBAL|LOCAL)|ECHON?|EJECT|ELSE|ELSE(IF|IFE|IFI)|ENCRYPT|ENDIF|EOLCOM|ERROR|ESCAPE|EVAL|EVAL(GLOBAL|LOCAL)|EXIT|EXPOSE|FUNCLIBIN|GOTO|GDX(IN|OUT)|HIDDEN|HIDDENCALL|HIDE|IF|IF(E|I|THEN|THENE|THENI)|INCLUDE|INLINECOM|KILL|LABEL|LIBINCLUDE|LINES|LOAD|LOAD(DC|DCM|DCR|M|R)|LOG|MACRO|(MIN|MAX)COL|MAXGOTO|(ON|OFF)DELIM|(ON|OFF)DIGIT|(ON|OFF)DOLLAR|(ON|OFF)DOTL|(ON|OFF)ECHO|(ON|OFF)EMBEDDED|(ON|OFF)EMPTY|(ON|OFF)END|(ON|OFF)EOLCOM|(ON|OFF)EPS|(ON|OFF)EXPAND|(ON|OFF)GLOBAL|(ON|OFF)INCLUDE|(ON|OFF)INLINE|(ON|OFF)LISTING|(ON|OFF)LOCAL|(ON|OFF)LOG|(ON|OFF)MACRO|(ON|OFF)MARGIN|(ON|OFF)MULTI|(ON|OFF)NESTCOM|(ON|OFF)PUT|(ON|OFF)RECURSE|(ON|OFF)SYMLIST|(ON|OFF)SYMXREF|(ON|OFF)UELLIST|(ON|OFF)UELXREF|(ON|OFF)UNDF|(ON|OFF)VERBATIM|(ON|OFF)WARNING|(ON|OFF)UPPER|PHANTOM|PREFIXPATH|PROTECT|PURGE|REMARK|SET|SET(ARGS|COMPS|DDLIST|ENV|GLOBAL|LOCAL|NAMES)|SHIFT|SHOW|SINGLE|STARS|STITLE|STOP|SYSINCLUDE|TERMINATE|TITLE|UNLOAD|USE205|USE225|USE999|VERSION|WARNING)\b'
-      scope: keyword.control
+      scope: keyword.control.gamY
     - match: '{{start}}(ABORT|ACRONYMS?|ALIAS|ALL|ASSIGN|BINARY|CARD|DISPLAY|EPS|EQ|GE|GT|INF|INTEGER|LE|LOOP|LT|MAXIMIZING|MINIMIZING|MODELS?|NA|NE|NEGATIVE|OPTION|OPTIONS|ORD|PROD|SMAX|SMIN|SOS1|SOS2|SUM|SYSTEM|TABLE|USING|XOR|YES|REPEAT|UNTIL|WHILE|IF|THEN|ELSE|SEMICONT|SEMIINT|FILES?|PUT|PUTPAGE|PUTTL|PUTCLOSE|PUT_UTILITY|FREE|NO|SOLVE|FOR|ELSEIF)\b'
-      scope: keyword.other
+      scope: keyword.other.gamY
     - match: (?i)\$(IMPORT|SAVE|DISPLAY|FIX|UNFIX|OUTPUT)\b
-      scope: keyword.control
+      scope: keyword.control.gamY
+
+  brackets1:
+    - match: \(
+      scope: punctuation.brackets.1.gamY
+      push:
+        - include: brackets2
+        - match: \)
+          pop: true
+          scope: punctuation.brackets.1.gamY
+        - include: main
+
+  brackets2:
+    - match: \(
+      scope: punctuation.brackets.2.gamY
+      push:
+        - include: brackets3
+        - match: \)
+          scope: punctuation.brackets.2.gamY
+          pop: true
+        - include: main
+
+  brackets3:
+    - match: \(
+      scope: punctuation.brackets.3.gamY
+      push:
+        - include: brackets4
+        - match: \)
+          scope: punctuation.brackets.3.gamY
+          pop: true
+        - include: main
+
+  brackets4:
+    - match: \(
+      scope: punctuation.brackets.4.gamY
+      push:
+        - include: brackets1
+        - match: \)
+          scope: punctuation.brackets.4.gamY
+          pop: true
+        - include: main
