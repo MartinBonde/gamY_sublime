@@ -2,7 +2,7 @@
 ---
 name: gamY
 author: Martin K. Bonde
-file_extensions: [gms, lst, gmy]
+file_extensions: [gms, gmy, lst]
 scope: source.gamY
 
 
@@ -18,6 +18,7 @@ contexts:
     - include: group
     - include: model
     - include: function_statement
+    - include: macro_statement
     - include: sum
     - include: general
 
@@ -44,43 +45,56 @@ contexts:
 
   end:
     - match: ;
-      scope: punctuation.definition.tag.end.gamY
+      scope: punctuation.terminator.gamY
       pop: true
 
   set_statement:
     - match: '{{start}}((?:SINGLETON )?SETS?)\s+'
-      scope: punctuation.definition.tag.begin.gamY
+      scope: storage.sets.gamY
       push:
         - include: end
         - include: set_definition
+        - include: general
 
   set_definition:
-    - match: (\w+)(\[[\w,]+\])?(\s+\".+\")?
+    - match: (\w+)(\[[\w,]+(<)?\])?(\s+\".*?\")?
       captures:
-        1: entity.name.gamY
-        3: punctuation.definition.comment.gamY
+        1: entity.name.def.set.gamY
+        3: keyword.control.gamY
+        4: comment.block.documentation
 
   function_statement:
     - match: '{{start}}(\$FUNCTION)\s+(\w+)'
       captures:
-        1: punctuation.definition.tag.begin.gamY
-        2: entity.name.function.gamY
+        1: storage.function.gamY
+        2: entity.name.def.function.gamY
       push:
         - match: '{{start}}(\$ENDFUNCTION)'
-          scope: punctuation.definition.tag.end.gamY
+          scope: punctuation.terminator.gamY
           pop: true
         - match: '\:'
-          scope: punctuation.definition.tag.begin.gamY
+          scope: punctuation.section.function.begin.gamY
         - include: arguments
         - include: main
 
   function_call:
     - match: '@\w+'
-      scope: entity.name.gamY
+      scope: entity.name.function_call.gamY
       push:
       - include: arguments
       - match: ""
         pop: true
+
+  macro_statement:
+    - match: '{{start}}(\$MACRO)\s+(\w+)'
+      captures:
+        1: storage.function.gamY
+        2: entity.name.def.function.gamY
+      push:
+        - match: (?<=\\)\s*?\n
+          pop: true
+        - include: arguments
+        - include: main
 
   arguments:
     - match: \(
@@ -94,23 +108,24 @@ contexts:
   block:
     - match: '{{start}}(\$BLOCK)\s+(\w+)'
       captures:
-        1: punctuation.definition.tag.begin.gamY
-        2: storage
+        1: storage.block.gamY
+        2: entity.name.def.block.gamY
       push:
         - meta_scope: meta.block.gamY
         - match: '{{start}}(\$ENDBLOCK)\b'
-          scope: punctuation.definition.tag.end.gamY
+          scope: storage.block.gamY
           pop: true
         - include: equation
         - include: general
 
   equation:
-    - match: ^\s+(\w+)(\[.+?\])?(\$.+?)?\.\.
+    - match: ^\s+(\w+)(\[.+?\])?\s*(\$.+?)?\.\.
       captures:
-        1: storage
+        1: entity.name.def.equation.gamY
         3: keyword.control.conditional.gamY
       push:
-        - include: end
+        - match: ;
+          pop: true
         - include: equation_separator
         - include: general
         - include: equation_error
@@ -126,8 +141,8 @@ contexts:
   model:
     - match: '{{start}}(\$MODEL)\s+(\w+)'
       captures:
-        1: punctuation.definition.tag.begin.gamY
-        2: storage
+        1: storage.block.gamY
+        2: entity.name.def.block.gamY
       push:
         - include: general
         - include: end
@@ -135,8 +150,8 @@ contexts:
   group:
     - match: '{{start}}(\$P?GROUP)\s+(\w+)\s+'
       captures:
-        1: punctuation.definition.tag.begin.gamY
-        2: storage
+        1: storage.group.gamY
+        2: entity.name.def.group.gamY
       push:
         - meta_scope: meta.group.gamY
         - include: end
@@ -147,9 +162,8 @@ contexts:
   group_variable:
     - match: '(?<=\])\$[^\(]\S+'
       scope: invalid.illegal.gamY
-    - match: (\w+)(?=.*?\".*?\")
-      captures:
-        1: entity.name.type.gamY
+    - match: \w+(?=.*?\".*?\")
+      scope: entity.name.def.variable.gamY
       push:
         - meta_scope: meta.variable.definition.gamY
         - include: sets
@@ -175,7 +189,7 @@ contexts:
 
   docstring:
     - match: \s+\"(.*?)\"
-      scope: punctuation.definition.comment.gamY
+      scope: comment.block.documentation
 
   sets:
     - match: \[.+?\]
@@ -187,57 +201,57 @@ contexts:
       #     pop: true
 
   for:
-    - match: '(?i)(\$FOR\d*) ([^\:]+)(\:)'
-      captures:
-        1: punctuation.definition.tag.begin.gamY
-        3: punctuation.definition.tag.begin.gamY
+    - match: '(?i)\$FOR\d*'
+      scope: keyword.control.gamY
       push:
+        - match: ":"
+          scope: punctuation.section.for.begin.gamY
         - match: (?i)\$ENDFOR\d*
-          scope: punctuation.definition.tag.end.gamY
+          scope: keyword.control.gamY
           pop: true
         - include: main
 
   if:
     - match: '(?i)(\$IF\d*)'
       captures:
-        1: punctuation.definition.tag.begin.gamY
+        1: keyword.control.gamY
       push:
         - match: '\:'
-          scope: punctuation.definition.tag.gamY
+          scope: punctuation.section.if.begin.gamY
         - match: (?i)\$ENDIF\d*
-          scope: punctuation.definition.tag.end.gamY
+          scope: keyword.control.gamY
           pop: true
         - include: main
 
   regex:
     - match: '(?i)(\$REGEX) ([^\:]+)(\:)'
       captures:
-        1: punctuation.definition.tag.begin.gamY
-        3: punctuation.definition.tag.begin.gamY
+        1: keyword.control.gamY
+        3: punctuation.section.regex.begin.gamY
       push:
         - match: (?i)\$ENDREGEX
-          scope: punctuation.definition.tag.end.gamY
+          scope: keyword.control.gamY
           pop: true
         - include: main
   replace:
     - match: '(?i)(\$REPLACE) ([^\:]+)(\:)'
       captures:
-        1: punctuation.definition.tag.begin.gamY
-        3: punctuation.definition.tag.begin.gamY
+        1: keyword.control.gamY
+        3: punctuation.section.replace.begin.gamY
       push:
         - match: (?i)\$ENDreplace
-          scope: punctuation.definition.tag.end.gamY
+          scope: keyword.control.gamY
           pop: true
         - include: main
 
   loop:
     - match: '(?i)(\$LOOP\d*) ([^\:]+)(\:)'
       captures:
-        1: punctuation.definition.tag.begin.gamY
-        3: punctuation.definition.tag.begin.gamY
+        1: keyword.control.gamY
+        3: punctuation.section.loop.begin.gamY
       push:
         - match: (?i)\$ENDLOOP\d*
-          scope: punctuation.definition.tag.end.gamY
+          scope: keyword.control.gamY
           pop: true
         - match: '{name|sets|subsets|RHS|LHS}'
           scope: entity.name.gamY
@@ -266,7 +280,7 @@ contexts:
           pop: true
 
   sum:
-    - match: '{{start}}(SUM)\('
+    - match: '\b(SUM)\('
       captures:
         1: keyword.operator.gamY
       push:
@@ -299,7 +313,7 @@ contexts:
       scope: entity.name.gamY
 
   string:
-    - match: \"[^\"]*\"
+    - match: \".*?\"
       scope: string.quoted.double.gamY
     - match: \'[^\']*\'
       scope: string.quoted.single.gamY
